@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+
+
+
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+    <script src="js/jquery-1.11.1.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+
+    <title>Hello World</title>
+</head>
+
+<body>
+    <div class="app">
+        <label for="text-basic">Informe o ID do post:</label>
+        <input type="text" name="textId" id="txtId" value="">
+        <br>
+        <button onclick="consultaUsuário()" class="ui-btn ui-shadow">Consultar Usuário</button>
+        <br> <br>
+        <label for="text-basic">UserID:</label>
+        <input type="text" name="textUserID" id="txtUserID" value="" readonly>
+        <br>
+        <label for="text-basic">Title:</label>
+        <input type="text" name="textTitle" id="txtTitle" value="" readonly>
+        <br>
+        <label for="text-basic">Body:</label>
+        <input type="text" name="textBody" id="txtBody" value="" readonly>
+        <br>
+        <button onclick="consultaComentarios()" class="ui-btn ui-shadow">Comentários</button>
+            
+            <div data-role="collapsible" data-collapsed="false">
+                <h4>Lista de comentários</h4>
+                <ul data-role="listview" id="txtComments">
+                </ul>
+            </div>
+        <br>
+
+        <label for="text-basic">Informe o ID do comentário a ser excluído:</label>
+        <input type="text" name="textDeleteID" id="txtDelID" value="">
+        <button onclick="excluirComentario()" class="ui-btn ui-shadow">Excluir</button>
+    </div>
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+    <script>
+        function consultaUsuário() {
+            id = document.getElementById("txtId");
+            consultaXHttp = new XMLHttpRequest();
+            consultaXHttp.onload = function () {
+                resJson = JSON.parse(consultaXHttp.response);
+                console.log("Consulta realizado:" + resJson.localidade);
+
+                inputTitle = document.getElementById("txtUserID");
+                inputTitle.value = resJson.userId;
+                inputTitle = document.getElementById("txtTitle");
+                inputTitle.value = resJson.title;
+                inputBody = document.getElementById("txtBody");
+                inputBody.value = resJson.body;
+            }
+            url = "https://jsonplaceholder.typicode.com/posts/" + id.value;
+            consultaXHttp.open("GET", url);
+            consultaXHttp.send();
+        }
+    </script>
+    <script>
+        function consultaComentarios() {
+            id = document.getElementById("txtId");
+            consultaXHttp = new XMLHttpRequest();
+            consultaXHttp.onload = function () {
+                comentarios = JSON.parse(consultaXHttp.response);
+                    CommentList = document.getElementById("txtComments");
+
+                    CommentList.innerHTML = '';
+
+                    for (i = 0; i < comentarios.length; i++) {
+                        comentario = comentarios[i];
+                        itemLista = document.createElement("itemLista");
+                        itemLista.innerHTML = `
+                            <b>postId:</b> ${comentario.postId}<br>
+                            <b>id:</b> ${comentario.id}<br>
+                            <b>name:</b> ${comentario.name}<br>
+                            <b>email:</b> ${comentario.email}<br>
+                            <b>body:</b> ${comentario.body}<br><br>
+                        `;
+                        CommentList.appendChild(itemLista);
+                    }
+            }
+            url = "https://jsonplaceholder.typicode.com/comments?postId=" + id.value;
+            consultaXHttp.open("GET", url);
+            consultaXHttp.send();
+        }
+    </script>
+
+    <script>
+        function excluirComentario() {
+                comentarioId = document.getElementById("txtDelID").value;
+                url = "https://jsonplaceholder.typicode.com/comments/" + comentarioId;
+
+                consultaXHttp = new XMLHttpRequest();
+                consultaXHttp.open("DELETE", url);
+                
+                consultaXHttp.onload = function() {
+                    if (consultaXHttp.status === 200) {
+                        alert(`Comentário excluído`);
+                    } else {
+                        alert(`Erro ao excluir o comentário.`);
+                    }
+                };
+                consultaXHttp.send();
+            }
+    </script>
+</body>
+
+</html>
